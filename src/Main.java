@@ -91,9 +91,9 @@ public class Main{
     }
 
     public static void main(String args[]) throws ValidationException{
-        if(args.length > 0 && args[0].equals("emc")){
-            Scanner in = new Scanner(System.in);
+        Scanner in = new Scanner(System.in);
 
+        if(args.length > 0 && args[0].equals("emc")){
             // Read test case
             int primaryColumns = in.nextInt();
             int secondaryColumns = in.nextInt();
@@ -195,7 +195,71 @@ public class Main{
 
             solveEMC(root,columnHeads);
         }else if(args.length > 0 && args[0].equals("pavage")){
-            System.out.println("PAVAGE");
+            int columns = in.nextInt();
+            int rows = in.nextInt();
+
+            String M[] = new String[rows];
+            M[0] = in.nextLine();
+
+            int id[][] = new int[rows][columns];
+            int coverColumns = 0;
+
+            for(int i = 0;i < rows;++i){
+                M[i] = in.nextLine();
+
+                for(int j = 0;j < columns;++j){
+                    if(M[i].charAt(j) == '*'){
+                        id[i][j] = coverColumns;
+                        ++coverColumns;
+                    }else id[i][j] = -1;
+                }
+            }
+
+            int pieces = in.nextInt();
+            int pieceRows[] = new int[pieces];
+            int pieceColumns[] = new int[pieces];
+            String pieceM[][] = new String[pieces][];
+
+            for(int i = 0;i < pieces;++i){
+                pieceColumns[i] = in.nextInt();
+                pieceRows[i] = in.nextInt();
+                pieceM[i] = new String[ pieceRows[i] ];
+
+                pieceM[i][0] = in.nextLine();
+
+                for(int j = 0;j < pieceRows[i];++j)
+                    pieceM[i][j] = in.nextLine();
+            }
+
+            MatrixNode root = new MatrixNode(-1,-1);
+            MatrixNode columnHeads[] = new MatrixNode[coverColumns];
+
+            for(int i = 0;i < coverColumns;++i)
+                columnHeads[i] = new MatrixNode(-1,i);
+
+            MatrixNode last[] = new MatrixNode[coverColumns];
+            int coverRows = 0;
+
+            for(int i = 0;i < coverColumns;++i)
+                last[i] = columnHeads[i];
+
+            for(int p = 0;p < pieces;++p){
+                if(checkTurn0(pieceM[p],M)){
+
+                }
+
+                if(checkTurn1(pieceM[p],M)){
+
+                }
+
+                if(checkTurn2(pieceM[p],M)){
+
+                }
+
+                if(checkTurn3(pieceM[p],M)){
+                    
+                }
+            }
         }else{
             System.out.println("Invalid command");
         }
