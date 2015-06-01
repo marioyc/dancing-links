@@ -6,6 +6,7 @@ public class Main{
     static List<Integer> solution;
 
     static void cover(MatrixNode c){
+        assert(c.r == -1 && c.c >= 0);
         c.right.left = c.left;
         c.left.right = c.right;
 
@@ -26,6 +27,7 @@ public class Main{
     }
 
     static void uncover(MatrixNode c){
+        assert(c.r == -1 && c.c >= 0);
         MatrixNode i = c.up;
 
         while(i != c){
@@ -45,8 +47,8 @@ public class Main{
         c.left.right = c;
     }
 
-    static void solveEMC(MatrixNode root){
-        if(root.right == null){
+    static void solveEMC(MatrixNode root, MatrixNode columnHeads[]){
+        if(root.right == root){
             for(int row : solution){
                 System.out.print(row + " ");
             }
@@ -62,32 +64,34 @@ public class Main{
         MatrixNode i = c.down;
 
         while(i != c){
+            //System.out.println("k = " + solution.size() + " " + i.r);
             solution.add(i.r);
             
             MatrixNode j = i.right;
 
             while(j != i){
-                cover(j);
+                cover(columnHeads[j.c]);
                 j = j.right;
             }
 
-            solveEMC(root);
+            solveEMC(root,columnHeads);
 
             j = i.left;
 
             while(j != i){
-                uncover(j);
+                uncover(columnHeads[j.c]);
                 j = j.left;
             }
 
             solution.remove(solution.size() - 1);
+            i = i.down;
         }
 
         uncover(c);
     }
 
     public static void main(String args[]) throws ValidationException{
-        if(args[0].equals("emc")){
+        if(args.length > 0 && args[0].equals("emc")){
             Scanner in = new Scanner(System.in);
 
             // Read test case
@@ -96,7 +100,7 @@ public class Main{
             int rows = in.nextInt();
             int columns = primaryColumns + secondaryColumns;
 
-            System.out.println(primaryColumns + " " + secondaryColumns + " " + rows);
+            //System.out.println(primaryColumns + " " + secondaryColumns + " " + rows);
             
             String M[] = new String[rows];
             M[0] = in.nextLine();
@@ -189,8 +193,8 @@ public class Main{
                 }
             }*/
 
-            solveEMC(root);
-        }else if(args[0].equals("pavage")){
+            solveEMC(root,columnHeads);
+        }else if(args.length > 0 && args[0].equals("pavage")){
             System.out.println("PAVAGE");
         }else{
             System.out.println("Invalid command");
