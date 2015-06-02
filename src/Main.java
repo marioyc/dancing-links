@@ -193,7 +193,6 @@ public class Main{
 
             System.out.println(solutions.size());
 
-            else{
             for(List<Integer> l : solutions){
                 for(int x : l){
                     System.out.print(x + 1 + " ");
