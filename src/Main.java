@@ -18,7 +18,7 @@ public class Main{
         for(int i = 0;i < R;++i)
             for(int j = 0;j < C;++j)
                 if(p[i].charAt(j) == '*'){
-                    MatrixNode cur = new MatrixNode(coverRows,id[i][j]);
+                    MatrixNode cur = new MatrixNode(coverRows,id[r + i][c + j]);
 
                     if(lastInRow != null){
                         assert(lastInRow.c < cur.c);
@@ -42,10 +42,33 @@ public class Main{
         if(!(r >= 0 && r + C <= id.length && c >= 0 && c + R <= id[0].length))
             return false;
 
-        for(int i = 0;i < R;++i)
-            for(int j = 0;j < C;++j)
-                if(p[i].charAt(j) == '*' && id[r + j][c + (R - 1 - i)] == -1)
+        for(int j = 0;j < C;++j)
+            for(int i = 0;i < R;++i)
+                if(p[R - 1 - i].charAt(j) == '*' && id[r + j][c + i] == -1)
                     return false;
+
+        MatrixNode first = null,lastInRow = null;
+
+        for(int j = 0;j < C;++j){
+            for(int i = 0;i < R;++i){
+                if(p[R - 1 - i].charAt(j) == '*'){
+                    MatrixNode cur = new MatrixNode(coverRows,id[r + j][c + i]);
+
+                    if(lastInRow != null){
+                        assert(lastInRow.c  < cur.c);
+                        lastInRow.right = cur;
+                        cur.left = lastInRow;
+                    }else{
+                        first = cur;
+                    }
+
+                    lastInRow = cur;
+                }
+            }
+        }
+
+        lastInRow.right = first;
+        first.left = lastInRow;
 
         return true;
     }
@@ -56,8 +79,31 @@ public class Main{
 
         for(int i = 0;i < R;++i)
             for(int j = 0;j < C;++j)
-                if(p[i].charAt(j) == '*' && id[r + (R - 1 - i)][c + (C - 1 - j)] == -1)
+                if(p[R - 1 - i].charAt(C - 1 - j) == '*' && id[r + i][c + j] == -1)
                     return false;
+
+        MatrixNode first = null,lastInRow = null;
+
+        for(int i = 0;i < R;++i){
+            for(int j = 0;j < C;++j){
+                if(p[R - 1 - i].charAt(C - 1 - j) == '*'){
+                    MatrixNode cur = new MatrixNode(coverRows,id[r + i][c + j]);
+
+                    if(lastInRow != null){
+                        assert(lastInRow.c < cur.c);
+                        lastInRow.right = cur;
+                        cur.left = lastInRow;
+                    }else{
+                        first = cur;
+                    }
+
+                    lastInRow = cur;
+                }
+            }
+        }
+
+        lastInRow.right = first;
+        first.left = lastInRow;
 
         return true;
     }
@@ -66,10 +112,33 @@ public class Main{
         if(!(r + C <= id.length && c >= 0 && c + R <= id[0].length))
             return false;
 
-        for(int i = 0;i < R;++i)
-            for(int j = 0;j < C;++j)
-                if(p[i].charAt(j) == '*' && id[r + (C - 1 - j)][c + i] == -1)
+        for(int j = 0;j < C;++j)
+            for(int i = 0;i < R;++i)
+                if(p[i].charAt(C - 1 - j) == '*' && id[r + j][c + i] == -1)
                     return false;
+
+        MatrixNode first = null,lastInRow = null;
+
+        for(int j = 0;j < C;++j){
+            for(int i = 0;i < R;++i){
+                if(p[i].charAt(C - 1 - j) == '*'){
+                    MatrixNode cur = new MatrixNode(coverRows,id[r + j][c + i]);
+
+                    if(lastInRow != null){
+                        assert(lastInRow.c < cur.c);
+                        lastInRow.right = cur;
+                        cur.left = lastInRow;
+                    }else{
+                        first = cur;
+                    }
+
+                    lastInRow = cur;
+                }
+            }
+        }
+
+        lastInRow.right = first;
+        first.left = lastInRow;
 
         return true;
     }
