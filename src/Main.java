@@ -1,93 +1,18 @@
 import java.util.Scanner;
 import java.util.List;
-import java.util.ArrayList;
 
 public class Main{
-    static List<Integer> solution;
-
-    static void cover(MatrixNode c){
-        assert(c.r == -1 && c.c >= 0);
-        c.right.left = c.left;
-        c.left.right = c.right;
-
-        MatrixNode i = c.down;
-
-        while(i != c){
-            MatrixNode j = i.right;
-
-            while(j != i){
-                j.down.up = j.up;
-                j.up.down = j.down;
-
-                j = j.right;
-            }
-
-            i = i.down;
-        }
+    static boolean checkTurn0(String p[], String M[]){
+        return false;
     }
-
-    static void uncover(MatrixNode c){
-        assert(c.r == -1 && c.c >= 0);
-        MatrixNode i = c.up;
-
-        while(i != c){
-            MatrixNode j = i.left;
-
-            while(j != i){
-                j.down.up = j;
-                j.up.down = j;
-
-                j = j.left;
-            }
-
-            i = i.up;
-        }
-
-        c.right.left = c;
-        c.left.right = c;
+    static boolean checkTurn1(String p[], String M[]){
+        return false;
     }
-
-    static void solveEMC(MatrixNode root, MatrixNode columnHeads[]){
-        if(root.right == root){
-            for(int row : solution){
-                System.out.print(row + " ");
-            }
-
-            System.out.println();
-            return;
-        }
-
-        MatrixNode c = root.right;
-
-        cover(c);
-
-        MatrixNode i = c.down;
-
-        while(i != c){
-            //System.out.println("k = " + solution.size() + " " + i.r);
-            solution.add(i.r);
-            
-            MatrixNode j = i.right;
-
-            while(j != i){
-                cover(columnHeads[j.c]);
-                j = j.right;
-            }
-
-            solveEMC(root,columnHeads);
-
-            j = i.left;
-
-            while(j != i){
-                uncover(columnHeads[j.c]);
-                j = j.left;
-            }
-
-            solution.remove(solution.size() - 1);
-            i = i.down;
-        }
-
-        uncover(c);
+    static boolean checkTurn2(String p[], String M[]){
+        return false;
+    }
+    static boolean checkTurn3(String p[], String M[]){
+        return false;
     }
 
     public static void main(String args[]) throws ValidationException{
@@ -99,15 +24,13 @@ public class Main{
             int secondaryColumns = in.nextInt();
             int rows = in.nextInt();
             int columns = primaryColumns + secondaryColumns;
-
-            //System.out.println(primaryColumns + " " + secondaryColumns + " " + rows);
             
             String M[] = new String[rows];
             M[0] = in.nextLine();
 
             for(int i = 0;i < rows;++i){
                 M[i] = in.nextLine();
-                System.out.println(M[i]);
+                //System.out.println(M[i]);
             }
 
             // build linked lists
@@ -176,12 +99,10 @@ public class Main{
                 if(last != null){
                     columnHeads[j].up = last;
                     last.down = columnHeads[j];
-                }else{
+                }else if(j < primaryColumns){
                     throw new ValidationException("Column " + j + " can not be covered");
                 }
             }
-
-            solution = new ArrayList<Integer>();
 
             /*for(int j = 0;j < columns;++j){
                 System.out.println("column " + j);
@@ -193,7 +114,19 @@ public class Main{
                 }
             }*/
 
-            solveEMC(root,columnHeads);
+            EMCSolver solver = new EMCSolver(root, primaryColumns);
+            List< List<Integer> > solutions = solver.solve();
+
+            if(solutions.size() == 0) System.out.println("NO SOLUTION");
+            else{
+                for(List<Integer> l : solutions){
+                    for(int x : l){
+                        System.out.print(x + 1 + " ");
+                    }
+
+                    System.out.println();
+                }
+            }
         }else if(args.length > 0 && args[0].equals("pavage")){
             int columns = in.nextInt();
             int rows = in.nextInt();
@@ -262,12 +195,6 @@ public class Main{
             }
         }else{
             System.out.println("Invalid command");
-        }
-    }
-
-    static class ValidationException extends Exception{
-        ValidationException(String message){
-            super(message);
         }
     }
 }
