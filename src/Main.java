@@ -2,17 +2,76 @@ import java.util.Scanner;
 import java.util.List;
 
 public class Main{
-    static boolean checkTurn0(String p[], String M[]){
-        return false;
+    static boolean checkTurn0(int r, int c, String p[], int id[][], MatrixNode last[], int coverRows){
+        int R = p.length,C = p[0].length();
+
+        if(!(r >= 0 && r + R <= id.length && c >= 0 && c + C <= id[0].length))
+            return false;
+
+        for(int i = 0;i < R;++i)
+            for(int j = 0;j < C;++j)
+                if(p[i].charAt(j) == '*' && id[r + i][c + j] == -1)
+                    return false;
+        
+        MatrixNode first = null,lastInRow = null;
+
+        for(int i = 0;i < R;++i)
+            for(int j = 0;j < C;++j)
+                if(p[i].charAt(j) == '*'){
+                    MatrixNode cur = new MatrixNode(coverRows,id[i][j]);
+
+                    if(lastInRow != null){
+                        assert(lastInRow.c < cur.c);
+                        lastInRow.right = cur;
+                        cur.left = lastInRow;
+                    }else{
+                        first = cur;
+                    }
+
+                    lastInRow = cur;
+                }
+
+        lastInRow.right = first;
+        first.left = lastInRow;
+
+        return true;
     }
-    static boolean checkTurn1(String p[], String M[]){
-        return false;
+
+    static boolean checkTurn1(int r, int c, String p[], int id[][], MatrixNode last[], int coverRows){
+        int R = p.length,C = p[0].length();
+        if(!(r >= 0 && r + C <= id.length && c >= 0 && c + R <= id[0].length))
+            return false;
+
+        for(int i = 0;i < R;++i)
+            for(int j = 0;j < C;++j)
+                if(p[i].charAt(j) == '*' && id[r + j][c + (R - 1 - i)] == -1)
+                    return false;
+
+        return true;
     }
-    static boolean checkTurn2(String p[], String M[]){
-        return false;
+    static boolean checkTurn2(int r, int c, String p[], int id[][], MatrixNode last[], int coverRows){
+        int R = p.length,C = p[0].length();
+        if(!(r >= 0 && r + R <= id.length && c >= 0 && c + C <= id[0].length))
+            return false;
+
+        for(int i = 0;i < R;++i)
+            for(int j = 0;j < C;++j)
+                if(p[i].charAt(j) == '*' && id[r + (R - 1 - i)][c + (C - 1 - j)] == -1)
+                    return false;
+
+        return true;
     }
-    static boolean checkTurn3(String p[], String M[]){
-        return false;
+    static boolean checkTurn3(int r, int c, String p[], int id[][], MatrixNode last[], int coverRows){
+        int R = p.length,C = p[0].length();
+        if(!(r + C <= id.length && c >= 0 && c + R <= id[0].length))
+            return false;
+
+        for(int i = 0;i < R;++i)
+            for(int j = 0;j < C;++j)
+                if(p[i].charAt(j) == '*' && id[r + (C - 1 - j)][c + i] == -1)
+                    return false;
+
+        return true;
     }
 
     public static void main(String args[]) throws ValidationException{
@@ -177,22 +236,28 @@ public class Main{
                 last[i] = columnHeads[i];
 
             for(int p = 0;p < pieces;++p){
-                if(checkTurn0(pieceM[p],M)){
+                for(int r = 0;r < rows;++r){
+                    for(int c = 0;c < columns;++c){
+                        if(checkTurn0(r,c,pieceM[p],id,last,coverRows)){
+                            ++coverRows;
+                        }
 
-                }
+                        if(checkTurn1(r,c,pieceM[p],id,last,coverRows)){
+                            ++coverRows;
+                        }
 
-                if(checkTurn1(pieceM[p],M)){
+                        if(checkTurn2(r,c,pieceM[p],id,last,coverRows)){
+                            ++coverRows;
+                        }
 
-                }
-
-                if(checkTurn2(pieceM[p],M)){
-
-                }
-
-                if(checkTurn3(pieceM[p],M)){
-                    
+                        if(checkTurn3(r,c,pieceM[p],id,last,coverRows)){
+                            ++coverRows;
+                        }
+                    }
                 }
             }
+
+            System.out.println("coverColumns = " + coverColumns + ", coverRows = " + coverRows);
         }else{
             System.out.println("Invalid command");
         }
