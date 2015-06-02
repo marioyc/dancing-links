@@ -191,15 +191,15 @@ public class Main{
             EMCSolver solver = new EMCSolver(root, primaryColumns, maxK);
             List< List<Integer> > solutions = solver.solve();
 
-            if(solutions.size() == 0) System.out.println("NO SOLUTION");
-            else{
-                for(List<Integer> l : solutions){
-                    for(int x : l){
-                        System.out.print(x + 1 + " ");
-                    }
+            System.out.println(solutions.size());
 
-                    System.out.println();
+            else{
+            for(List<Integer> l : solutions){
+                for(int x : l){
+                    System.out.print(x + 1 + " ");
                 }
+
+                System.out.println();
             }
         }else if(args.length > 0 && args[0].equals("pavage")){
             int columns = in.nextInt();
