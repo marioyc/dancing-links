@@ -2,7 +2,7 @@ import java.util.Scanner;
 import java.util.List;
 
 public class Main{
-    static boolean checkTurn0(int r, int c, String p[], int id[][], MatrixNode last[], int coverRows){
+    static boolean checkTurn0(int r, int c, int columnPiece, String p[], int id[][], MatrixNode last[], int coverRows){
         int R = p.length,C = p[0].length();
 
         if(!(r >= 0 && r + R <= id.length && c >= 0 && c + C <= id[0].length))
@@ -15,8 +15,8 @@ public class Main{
         
         MatrixNode first = null,lastInRow = null;
 
-        for(int i = 0;i < R;++i)
-            for(int j = 0;j < C;++j)
+        for(int i = 0;i < R;++i){
+            for(int j = 0;j < C;++j){
                 if(p[i].charAt(j) == '*'){
                     MatrixNode cur = new MatrixNode(coverRows,id[r + i][c + j]);
 
@@ -30,15 +30,31 @@ public class Main{
 
                     lastInRow = cur;
                 }
+            }
+        }
 
-        lastInRow.right = first;
-        first.left = lastInRow;
+        MatrixNode pNode = new MatrixNode(coverRows,columnPiece);
+
+        lastInRow.right = pNode;
+        pNode.left = lastInRow;
+        pNode.right = first;
+        first.left = pNode;
+
+        MatrixNode cur = first;
+
+        do{
+            last[cur.c].down = cur;
+            cur.up = last[cur.c];
+            last[cur.c] = cur;
+            cur = cur.right;
+        }while(cur != first);
 
         return true;
     }
 
-    static boolean checkTurn1(int r, int c, String p[], int id[][], MatrixNode last[], int coverRows){
+    static boolean checkTurn1(int r, int c, int columnPiece, String p[], int id[][], MatrixNode last[], int coverRows){
         int R = p.length,C = p[0].length();
+
         if(!(r >= 0 && r + C <= id.length && c >= 0 && c + R <= id[0].length))
             return false;
 
@@ -67,21 +83,35 @@ public class Main{
             }
         }
 
-        lastInRow.right = first;
-        first.left = lastInRow;
+        MatrixNode pNode = new MatrixNode(coverRows,columnPiece);
+
+        lastInRow.right = pNode;
+        pNode.left = lastInRow;
+        pNode.right = first;
+        first.left = pNode;
+
+        MatrixNode cur = first;
+
+        do{
+            last[cur.c].down = cur;
+            cur.up = last[cur.c];
+            last[cur.c] = cur;
+            cur = cur.right;
+        }while(cur != first);
 
         return true;
     }
-    static boolean checkTurn2(int r, int c, String p[], int id[][], MatrixNode last[], int coverRows){
+    static boolean checkTurn2(int r, int c, int columnPiece, String p[], int id[][], MatrixNode last[], int coverRows){
         int R = p.length,C = p[0].length();
+
         if(!(r >= 0 && r + R <= id.length && c >= 0 && c + C <= id[0].length))
             return false;
-
+        
         for(int i = 0;i < R;++i)
             for(int j = 0;j < C;++j)
                 if(p[R - 1 - i].charAt(C - 1 - j) == '*' && id[r + i][c + j] == -1)
                     return false;
-
+        
         MatrixNode first = null,lastInRow = null;
 
         for(int i = 0;i < R;++i){
@@ -102,12 +132,25 @@ public class Main{
             }
         }
 
-        lastInRow.right = first;
-        first.left = lastInRow;
+        MatrixNode pNode = new MatrixNode(coverRows,columnPiece);
+
+        lastInRow.right = pNode;
+        pNode.left = lastInRow;
+        pNode.right = first;
+        first.left = pNode;
+
+        MatrixNode cur = first;
+
+        do{
+            last[cur.c].down = cur;
+            cur.up = last[cur.c];
+            last[cur.c] = cur;
+            cur = cur.right;
+        }while(cur != first);
 
         return true;
     }
-    static boolean checkTurn3(int r, int c, String p[], int id[][], MatrixNode last[], int coverRows){
+    static boolean checkTurn3(int r, int c, int columnPiece, String p[], int id[][], MatrixNode last[], int coverRows){
         int R = p.length,C = p[0].length();
         if(!(r + C <= id.length && c >= 0 && c + R <= id[0].length))
             return false;
@@ -137,8 +180,21 @@ public class Main{
             }
         }
 
-        lastInRow.right = first;
-        first.left = lastInRow;
+        MatrixNode pNode = new MatrixNode(coverRows,columnPiece);
+
+        lastInRow.right = pNode;
+        pNode.left = lastInRow;
+        pNode.right = first;
+        first.left = pNode;
+
+        MatrixNode cur = first;
+
+        do{
+            last[cur.c].down = cur;
+            cur.up = last[cur.c];
+            last[cur.c] = cur;
+            cur = cur.right;
+        }while(cur != first);
 
         return true;
     }
@@ -292,11 +348,28 @@ public class Main{
                     pieceM[i][j] = in.nextLine();
             }
 
+            coverColumns += pieces;
+
             MatrixNode root = new MatrixNode(-1,-1);
             MatrixNode columnHeads[] = new MatrixNode[coverColumns];
 
-            for(int i = 0;i < coverColumns;++i)
+            for(int i = 0;i < coverColumns;++i){
                 columnHeads[i] = new MatrixNode(-1,i);
+
+                if(i > 0)
+                    columnHeads[i].left = columnHeads[i - 1];
+                else
+                    columnHeads[i].left = root;
+            }
+
+            for(int i = coverColumns - 2;i >= 0;--i){
+                columnHeads[i].right = columnHeads[i + 1];
+            }
+
+            columnHeads[coverColumns - 1].right = root;
+
+            root.right = columnHeads[0];
+            root.left = columnHeads[coverColumns - 1];
 
             MatrixNode last[] = new MatrixNode[coverColumns];
             int coverRows = 0;
@@ -307,26 +380,78 @@ public class Main{
             for(int p = 0;p < pieces;++p){
                 for(int r = 0;r < rows;++r){
                     for(int c = 0;c < columns;++c){
-                        if(checkTurn0(r,c,pieceM[p],id,last,coverRows)){
+                        if(checkTurn0(r,c,coverColumns - pieces + p,pieceM[p],id,last,coverRows)){
                             ++coverRows;
                         }
 
-                        if(checkTurn1(r,c,pieceM[p],id,last,coverRows)){
+                        if(checkTurn1(r,c,coverColumns - pieces + p,pieceM[p],id,last,coverRows)){
                             ++coverRows;
                         }
 
-                        if(checkTurn2(r,c,pieceM[p],id,last,coverRows)){
+                        if(checkTurn2(r,c,coverColumns - pieces + p,pieceM[p],id,last,coverRows)){
                             ++coverRows;
                         }
 
-                        if(checkTurn3(r,c,pieceM[p],id,last,coverRows)){
+                        if(checkTurn3(r,c,coverColumns - pieces + p,pieceM[p],id,last,coverRows)){
                             ++coverRows;
                         }
                     }
                 }
+
+                /*String pRev[] = new String[ pieceRows[p] ];
+
+                for(int r = 0;r < pieceRows[p];++r){
+                    String aux = new String();
+
+                    for(int c = 0;c < pieceColumns[p];++c){
+                        aux += pieceM[p][r].charAt(pieceColumns[p] - 1 - c);
+                    }
+
+                    pRev[r] = aux;
+                }
+
+                for(int r = 0;r < rows;++r){
+                    for(int c = 0;c < columns;++c){
+                        if(checkTurn0(r,c,coverColumns - pieces + p,pRev,id,last,coverRows)){
+                            ++coverRows;
+                        }
+
+                        if(checkTurn1(r,c,coverColumns - pieces + p,pRev,id,last,coverRows)){
+                            ++coverRows;
+                        }
+
+                        if(checkTurn2(r,c,coverColumns - pieces + p,pRev,id,last,coverRows)){
+                            ++coverRows;
+                        }
+
+                        if(checkTurn3(r,c,coverColumns - pieces + p,pRev,id,last,coverRows)){
+                            ++coverRows;
+                        }
+                    }
+                }*/
             }
 
-            System.out.println("coverColumns = " + coverColumns + ", coverRows = " + coverRows);
+            System.out.println(coverColumns + " " + coverRows);
+
+            for(int i = 0;i < coverColumns;++i){
+                last[i].down = columnHeads[i];
+                columnHeads[i].up = last[i];
+            }
+
+            /*for(int j = 0;j < coverColumns;++j){
+                System.out.println("column " + j);
+                MatrixNode cur = columnHeads[j].down;
+
+                while(cur != columnHeads[j]){
+                    System.out.println(cur);
+                    cur = cur.down;
+                }
+            }*/
+
+            EMCSolver solver = new EMCSolver(root, coverColumns - pieces);
+            List< List<Integer> > solutions = solver.solve();
+
+            System.out.println(solutions.size());
         }else{
             System.out.println("Invalid command");
         }
