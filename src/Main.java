@@ -340,7 +340,7 @@ public class Main{
                 }
             }*/
 
-            EMCSolver solver = new EMCSolver(root, coverColumns - pieces);
+            EMCSolver solver = new EMCSolver(root, coverColumns);
             List< List<Integer> > solutions = solver.solve();
 
             System.out.println(solutions.size());
