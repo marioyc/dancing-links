@@ -8,14 +8,18 @@ public class EMCSolver{
 
 	private int columns;
 	private int primaryColumns;
+	private int maxK;
 
 	public List< List<Integer> > solutions;
 	private ArrayList<Integer> solution;
 
-	EMCSolver(MatrixNode root, int primaryColumns) throws ValidationException{
+	EMCSolver(MatrixNode root, int primaryColumns, int maxK) throws ValidationException{
 		this.root = root;
 		columnHeads = new ArrayList<MatrixNode>();
+
 		this.primaryColumns = primaryColumns;
+		this.maxK = maxK;
+
 		solutions = new ArrayList< List<Integer> >();
 		solution = new ArrayList<Integer>();
 
@@ -30,6 +34,18 @@ public class EMCSolver{
 
 		if(primaryColumns < 0 || primaryColumns > columns)
 			throw new ValidationException("Number of primaryColumns is invalid");
+
+		for(int i = 0;i < columns;++i){
+			int cont = 0;
+			cur = columnHeads.get(i).down;
+
+			while(cur != columnHeads.get(i)){
+				cur = cur.down;
+				++cont;
+			}
+
+			columnHeads.get(i).s = cont;
+		}
 	}
 
 	private void cover(MatrixNode c){
@@ -74,7 +90,7 @@ public class EMCSolver{
         c.left.right = c;
     }
 
-    private void search(){
+    private void search(int k){
         if(root.right == root){
         	List<Integer> temp = new ArrayList<Integer>();
 
@@ -84,12 +100,25 @@ public class EMCSolver{
             Collections.sort(temp);
             solutions.add(temp);
         }else{
-	        MatrixNode c = root.right;
+	        MatrixNode c = root.right,cur = c.right,h;
+
+	        if(k < maxK){
+		        int best = c.s;
+
+		        while(cur != root){
+		        	if(cur.s < best){
+		        		best = cur.s;
+		        		c = cur;
+		        	}
+
+		        	cur = cur.right;
+		        }
+	    	}
 
 	        cover(c);
 
 	        if(c.c >= primaryColumns){
-	        	search();
+	        	search(k + 1);
 	        }
 
 	        MatrixNode i = c.down;
@@ -100,17 +129,21 @@ public class EMCSolver{
 	            MatrixNode j = i.right;
 
 	            while(j != i){
-	                cover(columnHeads.get(j.c));
+	            	h = j.head;
+	                cover(h);
 	                j = j.right;
+	                --h.s;
 	            }
 
-	            search();
+	            search(k + 1);
 
 	            j = i.left;
 
 	            while(j != i){
-	                uncover(columnHeads.get(j.c));
+	            	h = j.head;
+	                uncover(h);
 	                j = j.left;
+	                ++h.s;
 	            }
 
 	            solution.remove(solution.size() - 1);
@@ -124,7 +157,7 @@ public class EMCSolver{
     public List< List<Integer> > solve(){
     	solutions.clear();
 
-    	search();
+    	search(0);
 
     	return solutions;
     }

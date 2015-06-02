@@ -2,7 +2,7 @@ import java.util.Scanner;
 import java.util.List;
 
 public class Main{
-    static boolean checkTurn0(int r, int c, int columnPiece, String p[], int id[][], MatrixNode last[], int coverRows){
+    static boolean check(int r, int c, int columnPiece, String p[], int id[][], MatrixNode last[], int coverRows){
         int R = p.length,C = p[0].length();
 
         if(!(r >= 0 && r + R <= id.length && c >= 0 && c + C <= id[0].length))
@@ -45,6 +45,7 @@ public class Main{
         do{
             last[cur.c].down = cur;
             cur.up = last[cur.c];
+            cur.head = last[cur.c].head;
             last[cur.c] = cur;
             cur = cur.right;
         }while(cur != first);
@@ -111,7 +112,6 @@ public class Main{
 
             for(int i = 0;i < rows;++i){
                 M[i] = in.nextLine();
-                //System.out.println(M[i]);
             }
 
             // build linked lists
@@ -165,19 +165,15 @@ public class Main{
 
                 for(int i = 0;i < rows;++i){
                     if(M[i].charAt(j) == '1'){
-                        if(last != null){
-                            last.down = Mnodes[i][j];
-                            Mnodes[i][j].up = last;
-                        }else{
-                            columnHeads[j].down = Mnodes[i][j];
-                            Mnodes[i][j].up = columnHeads[j];
-                        }
+                        last.down = Mnodes[i][j];
+                        Mnodes[i][j].up = last;
+                        Mnodes[i][j].head = last.head;
 
                         last = Mnodes[i][j];
                     }
                 }
 
-                if(last != null){
+                if(last != columnHeads[j]){
                     columnHeads[j].up = last;
                     last.down = columnHeads[j];
                 }else if(j < primaryColumns){
@@ -185,17 +181,14 @@ public class Main{
                 }
             }
 
-            /*for(int j = 0;j < columns;++j){
-                System.out.println("column " + j);
-                MatrixNode cur = columnHeads[j].down;
+            // optional argument for heuristic
+            int maxK = 0;
 
-                while(cur != columnHeads[j]){
-                    System.out.println(cur.r + " " + cur.c);
-                    cur = cur.down;
-                }
-            }*/
+            if(args.length > 1)
+                maxK = Integer.parseInt(args[1]);
 
-            EMCSolver solver = new EMCSolver(root, primaryColumns);
+            // search solutions
+            EMCSolver solver = new EMCSolver(root, primaryColumns, maxK);
             List< List<Integer> > solutions = solver.solve();
 
             if(solutions.size() == 0) System.out.println("NO SOLUTION");
@@ -274,13 +267,14 @@ public class Main{
             for(int i = 0;i < coverColumns;++i)
                 last[i] = columnHeads[i];
 
+            // try all orientations and positions for each piece
             for(int p = 0;p < pieces;++p){
-                //System.out.println("p = " + p);
                 String orientations[][] = new String[8][];
                 int nOrientations = 0;
 
                 String cur[] = pieceM[p];
 
+                // rotate the piece
                 for(int i = 0;i < 4;++i){
                     boolean ok = true;
 
@@ -296,6 +290,7 @@ public class Main{
                     cur = rotate(cur);
                 }
 
+                // turn and rotate again
                 cur = turn(cur);
 
                 for(int i = 0;i < 4;++i){
@@ -313,34 +308,27 @@ public class Main{
                     cur = rotate(cur);
                 }
 
-                for(int r = 0;r < rows;++r){
-                    for(int c = 0;c < columns;++c){
+                for(int r = 0;r < rows;++r)
+                    for(int c = 0;c < columns;++c)
                         for(int i = 0;i < nOrientations;++i)
-                            if(checkTurn0(r,c,coverColumns - pieces + p,orientations[i],id,last,coverRows)){
+                            if(check(r,c,coverColumns - pieces + p,orientations[i],id,last,coverRows)){
                                 ++coverRows;
                             }
-                    }
-                }
             }
-
-            //System.out.println(coverColumns + " " + coverRows);
 
             for(int i = 0;i < coverColumns;++i){
                 last[i].down = columnHeads[i];
                 columnHeads[i].up = last[i];
             }
 
-            /*for(int j = 0;j < coverColumns;++j){
-                System.out.println("column " + j);
-                MatrixNode cur = columnHeads[j].down;
+            // optional argument for heuristic
+            int maxK = 0;
 
-                while(cur != columnHeads[j]){
-                    System.out.println(cur);
-                    cur = cur.down;
-                }
-            }*/
+            if(args.length > 1)
+                maxK = Integer.parseInt(args[1]);
 
-            EMCSolver solver = new EMCSolver(root, coverColumns);
+            // search solutions
+            EMCSolver solver = new EMCSolver(root, coverColumns, maxK);
             List< List<Integer> > solutions = solver.solve();
 
             System.out.println(solutions.size());
